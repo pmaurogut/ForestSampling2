@@ -1,0 +1,85 @@
+---
+title: "Estimation with n Plots Located Uniformly at Random and Independently"
+output:
+  html_document: default
+---
+
+#### Introduction
+
+This tab explains how to estimate a parameter of interest (see the **Population** tab) when repeating $n$ times and independently the random experiment of:
+
+1.  Selecting $n$ locations at random within the area to be sampled.
+2.  Selecting the trees that will form the sample in each of the $n$ plots based on the plot type used.
+3.  Obtaining $n$ plot estimators and averaging them. The result of this average is called the **final estimator**.
+
+#### Final Estimator and Properties
+
+When measuring multiple plots placed randomly and independently, we build our final estimator by averaging the $n$ plot estimators calculated as explained in the previous tab:
+
+$$\boxed{\boxed{ final~estimator = \frac{1}{n}\sum_{p=1}^n (plot~estimator)_p}}$$
+
+For ratios of totals, 0/0 indeterminacies can occur. In such cases, rather than discarding affected plots and averaging the remaining ones, we could operate directly with the final estimators of the individual totals. While this alternative method reduces 0/0 occurrences, we stick to simple plot averages in the theoretical explanations below to avoid added analytical complexity.
+
+$$\hat{dg}_{final}=\frac{1}{n}\sum_{p=1}^n\hat{dg}_p  \leftarrow \rightarrow \hat{dg}_{alternative}=100 \sqrt{\frac{4\hat{G}_{final}}{\pi \hat{N}_{final}}}$$
+
+To understand the properties of the final estimator, keep two concepts in mind:
+
+1.  Plot estimators are random variables (inheriting randomness from plot placement) originating from the same experiment, meaning they share identical probability distributions.
+2.  Because the $n$ plot locations are chosen independently, the final estimator is the sample mean of $n$ independent and identically distributed (i.i.d.) random variables.
+
+From these principles, we derive key properties of the final estimator using standard rules for expected values and variances of linear combinations.
+
+#### Expected Value of the Final Estimator
+
+-   The expectation of a sum of $n$ random variables equals the sum of their expectations: $E(\sum_{p=1}^n x_p)=\sum_{p=1}^n E(x_p)$
+-   The expectation of a random variable multiplied by a constant $k$ equals the constant times its expectation: $E(k x) = k E(x)$
+
+Applying these rules:
+
+$$E(final~estimator) = E\left(\frac{1}{n}\sum_{p=1}^n (plot~estimator)_p\right)=\frac{1}{n}\sum_{p=1}^n E(plot~estimator_p)$$
+
+Since all plot estimators stem from the same random experiment, they share the same expected value:
+
+$$\boxed{\boxed{ E(final~estimator) = \frac{n E(plot~estimator)}{n}=E(plot~estimator)}}$$
+
+The final estimator shares the exact expected value of a single plot estimator:
+
+-   For totals and totals per unit area, the expected value matches the target parameter when edge effects are negligible, meaning the final estimator inherits unbiasedness.
+
+$$\boxed{\boxed{ E(final~estimator) = E(plot~estimator)=Parameter~of~interest}}$$
+
+-   For ratios, functions of totals, and complex parameters, expected values may differ from the true parameter, causing the final estimator to inherit any single-plot bias.
+
+#### Variance and Standard Deviation of the Final Estimator
+
+To derive the variance of the final estimator:
+
+-   The variance of a sum of $n$ **independent** random variables equals the sum of their variances: $V(\sum_{p=1}^n x_p)=\sum_{p=1}^n V(x_p)$
+-   The variance of a random variable multiplied by a constant $k$ equals the constant squared times its variance: $V(k x) = k^2 V(x)$
+
+Applying these rules:
+
+$$V(final~estimator) = V\left(\frac{1}{n}\sum_{p=1}^n (plot~estimator_p)\right)=\frac{1}{n^2}\sum_{p=1}^n V(plot~estimator_p)$$
+
+Since all plot estimators have equal variance:
+
+$$\boxed{\boxed{ V(final~estimator) = \frac{n V(plot~estimator)}{n^2}=\frac{V(plot~estimator)}{n}}}$$
+
+The variance of the final estimator decreases by a factor of $\frac{1}{n}$. Taking the square root gives its standard deviation ($sd = \sqrt{V}$):
+
+$$\boxed{\boxed{ sd(final~estimator) =\sqrt{\frac{V(plot~estimator)}{n}}=\frac{sd(plot~estimator)}{\sqrt{n}}}}$$
+
+#### Left Panel: Population, Samples, and Estimates
+
+Before continuing, click **Regenerate population** to clear accumulated samples. Adjust sample sizes using the **Number of plots** control or the **Increase n** and **Decrease n** buttons.
+
+Each time you click **Sample**, $n$ plots are drawn, their plot estimators calculated, and the final estimator obtained by averaging them. The left panel displays parameter values, generated plot coordinates, and individual plot estimates.
+
+#### Right Panel: Plot Estimates vs. Final Estimates Comparison
+
+The right panel compares the distribution of single-plot estimates (top panel in red) with final $n$-plot mean estimates (bottom panel blue dot). The true parameter value is indicated by a vertical red line.
+
+Clicking **Sample** repeatedly illustrates the sampling distributions of both plot and final estimators. Increasing $n$ narrows the spread of final estimates. Horizontal red segments indicate two standard deviations for each distribution. The mathematical relationships dictate that:
+
+1.  $V(final~estimator)$ decreases inversely proportional to $n$.
+2.  $sd(final~estimator)$ decreases inversely proportional to $\sqrt{n}$.

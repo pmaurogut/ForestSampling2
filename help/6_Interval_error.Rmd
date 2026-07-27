@@ -1,0 +1,94 @@
+---
+title: "Confidence Intervals and Sampling Error"
+output:
+  html_document: default
+---
+
+#### Introduction
+
+The previous tab relied on simulation to examine sampling distributions over hundreds of iterations. In this tab, we focus on operational practice: **calculating confidence intervals and sampling errors for the final estimator from a single inventory run.**
+
+A real inventory involves two distinct estimation problems:
+1. Estimating the target parameter via the final estimator $\hat{\mu}_{final}$.
+2. Estimating the uncertainty/variability of that final estimator to evaluate inventory quality.
+
+#### Simplified Notation
+
+We use $\mu$ as a generic symbol for the parameter of interest. For estimators:
+1. Carets $\hat{~}$ indicate estimated values.
+2. Subscript $p$ denotes a single-plot estimate ($\hat{\mu}_p$), and subscript $final$ denotes the $n$-plot mean ($\hat{\mu}_{final} = \frac{1}{n}\sum_{p=1}^n \hat{\mu}_p$).
+
+Since a real inventory collects only $n$ plots once without infinite repetition, we infer the sampling distribution by leveraging analytical relationships between single-plot and final-estimator variances.
+
+#### Key Relationships Between Sampling Distributions
+
+1. The expectation of the final estimator equals the single-plot expectation:
+   $$E(\hat{\mu}_{final}) = E(\hat{\mu}_p)$$
+
+2. For totals or totals per unit area with negligible edge effects, this expectation equals the true parameter $\mu$ (unbiasedness):
+   $$E(\hat{\mu}_{final}) = E(\hat{\mu}_p) = \mu$$
+
+3. By random plot independence, final estimator standard deviation equals single-plot standard deviation divided by $\sqrt{n}$:
+   $$sd(\hat{\mu}_{final}) = \frac{sd(\hat{\mu}_p)}{\sqrt{n}}$$
+
+4. For sufficiently large $n$, the final estimator approaches a normal distribution:
+   $$\hat{\mu}_{final} \sim N\left(E(\hat{\mu}_p), \frac{sd(\hat{\mu}_p)^2}{n}\right)$$
+
+5. For unbiased totals, this normal distribution centers directly on $\mu$:
+   $$\hat{\mu}_{final} \sim N\left(\mu, \frac{sd(\hat{\mu}_p)^2}{n}\right)$$
+
+#### The Second Estimation Problem: Estimating Uncertainty
+
+To communicate inventory precision, we must estimate $sd(\hat{\mu}_{final})$. From sample data, an unbiased sample variance estimator for single plots is:
+
+$$\hat{V}(\hat{\mu}_p) = \frac{\sum_{p=1}^n (\hat{\mu}_p - \hat{\mu}_{final})^2}{n - 1}$$
+
+Taking the square root yields estimated plot standard deviation:
+
+$$\hat{sd}(\hat{\mu}_p) = \sqrt{\frac{\sum_{p=1}^n (\hat{\mu}_p - \hat{\mu}_{final})^2}{n - 1}}$$
+
+Applying property 3, we convert plot-level standard deviation to final estimator standard deviation:
+
+$$\hat{V}(\hat{\mu}_{final}) = \frac{\hat{V}(\hat{\mu}_p)}{n} = \frac{\sum_{p=1}^n (\hat{\mu}_p - \hat{\mu}_{final})^2}{n(n - 1)}$$
+
+$$\hat{sd}(\hat{\mu}_{final}) = \frac{\hat{sd}(\hat{\mu}_p)}{\sqrt{n}} = \sqrt{\frac{\sum_{p=1}^n (\hat{\mu}_p - \hat{\mu}_{final})^2}{n(n - 1)}}$$
+
+#### Confidence Intervals
+
+Assuming approximate normality, a $(1-\alpha)\%$ confidence interval containing $E(\hat{\mu}_{final})$ is constructed as:
+
+$$Confidence~Interval = \left[\hat{\mu}_{final} - q\left(1 - \frac{\alpha}{2}\right)\hat{sd}(\hat{\mu}_{final})~,~\hat{\mu}_{final} + q\left(1 - \frac{\alpha}{2}\right)\hat{sd}(\hat{\mu}_{final})\right]$$
+
+or concisely:
+
+$$Confidence~Interval = \hat{\mu}_{final} \pm q\left(1 - \frac{\alpha}{2}\right)\hat{sd}(\hat{\mu}_{final})$$
+
+where $(1-\alpha)\%$ is the confidence level (typically 95%, so $\alpha = 0.05$).
+
+**IMPORTANT:** For unbiased estimators (totals), 95% of constructed intervals across repeated inventories would enclose the true parameter $\mu$. For biased estimators (ratios/complex variables), coverage probability may deviate from $1-\alpha\%$.
+
+#### Calculating Multiplier $q$
+
+The critical factor $q(1-\frac{\alpha}{2})$ can be selected via two standard approaches:
+1. Standard normal quantiles (e.g., Särndal et al., 2003): $q = z_{1-\alpha/2}$ (1.96 for 95% confidence).
+2. Student's $t$-distribution quantiles: $q = t(1-\frac{\alpha}{2}, n-1)$, which accounts for sample size uncertainty and yields slightly wider, safer intervals.
+
+For $n > 5$ at 95% confidence, $q$ values range between 1.96 and 2.57, approaching 1.96 as $n$ grows.
+
+#### Sampling Error
+
+Sampling error represents half the confidence interval width:
+
+$$Sampling~Error_{(1-\alpha)\%} = q\left(1 - \frac{\alpha}{2}\right)\hat{sd}(\hat{\mu}_{final})$$
+
+Relative sampling error $\hat{\varepsilon}_{(1-\alpha)\%}$ expresses this bound relative to the estimated mean:
+
+$$\hat{\varepsilon}_{(1-\alpha)\%} = \frac{q\left(1 - \frac{\alpha}{2}\right)\hat{sd}(\hat{\mu}_{final})}{\hat{\mu}_{final}}$$
+
+#### Application Controls
+
+In this tab, sampling is repeated five times for the specified $n$. The right panel displays actual vs. estimated standard deviations, confidence intervals, and relative errors across the five replications. Use **Resample** to generate five new iterations.
+
+#### References
+
+Särndal, C.-E., Swensson, B., Wretman, J., 2003. *Model Assisted Survey Sampling*. Springer Series in Statistics.

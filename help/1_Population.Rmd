@@ -1,0 +1,101 @@
+---
+title: "Población"
+output:
+  html_document: default
+---
+
+#### Introduction
+
+**You are viewing the simulated population.** In a real inventory, we do not know the size of the population $\mathcal{N}$; that is, we do not know how many individuals exist in the study area or the values of their variables (for example, heights and diameters). This implies that, in real applications, we also do not know the true values of the parameters of interest that we want to estimate. However, simulations allow us to approach the sampling problem in a controlled context where we *do* know all the individuals within the study area (red square). Under these conditions, we can calculate the true values of the population parameters of interest and, based on them, analyze and compare different sampling configurations, evaluating their performance and accuracy.
+
+#### Parameters of Interest (General)
+
+Below, we will analyze the three most common types of parameters of interest: totals, ratios, and other parameters.
+
+**Totals and totals per unit area**
+
+In general, the **population total** of a variable of interest $y_i$ is defined as the sum of that variable for all trees $i$ present in the sampled area. The **total per unit area** is obtained by dividing the population total by the sampled area $A$, which in practice is usually known. If we use the symbol $\mathcal{N}$ (rounded $N$) to represent the total number of trees in the study area (an unknown parameter), totals and totals per unit area can be expressed as:
+
+$$
+Total(y)=\sum_{i=1}^{\mathcal{N}}y_i \qquad \qquad Total ~ per ~ unit ~ area(y)=\frac{1}{A}\sum_{i=1}^{\mathcal{N}}y_i
+$$
+
+Two examples of totals per unit area are **density** $N$ (straight $N$) and **basal area** $G$. In the case of density, the variable $y_i$ takes the value of 1 for all trees, since we are simply counting individuals per unit area. In the case of basal area $G$, the variable $y_i$ corresponds to the cross-sectional area at breast height for each tree (expressed in square meters).
+
+**Ratios and functions of totals**
+
+Although totals are almost certainly the most important parameters of interest in forest inventories, many forest mensuration variables that we want to estimate are not totals themselves, but rather functions that depend on more than one total. Outstanding among these functions are **mean values**. A mean value is defined as the sum of the variable of interest for all individuals in the population divided by the total number of individuals, $\mathcal{N}$. Now, $\mathcal{N}$ itself is a particular total where $y_i=1$ for all trees. Therefore, mean values can be interpreted as ratios of totals (or as ratios of totals per unit area, since the factor $\frac{1}{A}$ cancels out).
+
+$$
+Mean(y)=\frac{\sum_{i=1}^{\mathcal{N}}y_i}{\mathcal{N}}=\frac{\frac{1}{A}\sum_{i=1}^{\mathcal{N}}y_i}{\frac{1}{A}\mathcal{N}}=\frac{\sum_{i=1}^{\mathcal{N}}y_i}{\sum_{i=1}^{\mathcal{N}}1}
+$$
+
+Another example of a parameter of interest that can be expressed as a function of totals is the **quadratic mean diameter** $d_g$. Starting from its definition (the diameter corresponding to the tree of mean basal area), it can be seen that $d_g$ depends directly on two population totals: the basal area $G$ and the number of trees $N$. Therefore, the quadratic mean diameter can be interpreted as a function of both totals.
+
+$$\frac{\pi d_g^2}{4}=\frac{AG}{AN} \rightarrow d_g(m) = \sqrt{\frac{4G}{\pi N}}\rightarrow d_g(cm)=100 d_g(m)$$
+
+**Other complex parameters**
+
+There are forest variables that cannot be expressed as totals or as functions or ratios of totals. Notably in this group are **dominant height** and **dominant diameter**, which are usually defined as the mean height or diameter values of the set of dominant trees.
+
+$$
+h_o= \frac{1}{\mathcal{N_{dominant}}}\sum\limits_{i\in dominant}h_i
+$$
+
+$$
+d_o= \frac{1}{\mathcal{N_{dominant}}}\sum\limits_{i\in dominant}d_i
+$$
+
+Following Assmann's criterion, the set of dominant trees consists of the 100 trees with the largest diameters per hectare. Although the definition of these parameters seems simple, in practice it involves working with a subset of trees (the dominant set) that is not known *a priori*. Furthermore, its definition can generate conceptually delicate situations. For example, how do we determine dominant height in a 1-ha stand containing only 50 trees? For now, we will not delve into these questions, but it is important to be aware that they exist. Later, it will be necessary to decide how to address these types of issues and what criteria to adopt in each case.
+
+#### Examples of Parameters of Interest
+
+In this case, we have considered the following parameters of interest, where $A$ is the known area of the zone to be sampled:
+
+**Totals**
+
+- Total individuals
+
+$$Total~individuals= \sum_{i=1}^{\mathcal{N}}1$$
+
+- Total cross-sectional areas
+
+$$Total~cross{-}sections(m^2)=\sum_{i=1}^{\mathcal{N}}g_i=\sum_{i=1}^{\mathcal{N}}\frac{\pi}{4}dbh_i^2$$
+
+- Total volume over bark
+
+$$Total~volume~over~bark(m^3)=\sum_{i=1}^{\mathcal{N}}vob_i$$
+
+**Totals per unit area**
+
+- Density (stems per ha) (Total per unit area)
+
+$$N(individuals/ha)=\frac{1}{A}\sum_{i=1}^{\mathcal{N}}1$$
+
+- Basal area (Total per unit area)
+
+$$G(m^2/ha)=\frac{1}{A}\sum_{i=1}^{\mathcal{N}}g_i=\sum_{i=1}^{\mathcal{N}}\frac{\pi}{4}dbh_i^2$$
+
+- Volume over bark per unit area (Volume over bark per ha)
+
+$$VOB(m^3/ha)=\frac{1}{A}\sum_{i=1}^{\mathcal{N}}vob_i$$
+
+**Ratios and functions of totals or totals per unit area**
+
+- Quadratic mean diameter (function of totals)
+
+$$dg(m)=\sqrt{\frac{\sum_{i=1}^{\mathcal{N}}\frac{\pi}{4}dbh_i^2}{\frac{1}{A}\sum_{i=1}^{\mathcal{N}}1}\frac{4}{\pi}}=\sqrt{\frac{G}{N}\frac{4}{\pi}}$$
+
+$$dg(cm)=100 * dg(m)$$
+
+- Mean height (ratio of totals)
+
+$$\bar{h}(m)=\frac{\sum_{i=1}^{\mathcal{N}}h_i}{\sum_{i=1}^{\mathcal{N}}1}$$
+
+**Dominance parameters**
+
+- Dominant height (other complex parameters)
+
+$$h_o(m) =\sum_{i \in \mathcal{D}}g_i=\sum_{i \in \mathcal{D}}\frac{\pi}{4}dbh_i^2 ~~ , \text{where } \mathcal{D} \text{ is the set of dominant trees}$$
+
+According to Assmann's criterion, $\mathcal{D}$ is the set of the 100 thickest trees per hectare.

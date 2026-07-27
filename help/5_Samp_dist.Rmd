@@ -1,0 +1,43 @@
+---
+title: Sampling Distribution of Estimation with n Plots Located Uniformly at Random and Independently
+output:
+  html_document: default
+---
+
+#### Introduction
+
+#### Sampling Distribution
+
+This tab explores the sampling distribution of final estimators in detail. These distributions represent the theoretical values obtained if independent $n$-plot sampling were repeated infinitely. **They convey essential information regarding precision and bias, forming the foundation for quality control and uncertainty reporting in sampling.**
+
+Results in this tab rely on simulations where the following sequence is repeated hundreds of times:
+
+1.  Select $n$ locations independently and at random across the study area.
+2.  Identify sample trees in each of the $n$ plots based on plot design.
+3.  Calculate $n$ plot estimates and average them into a final estimator value for that iteration.
+
+Changing the **Number of plots** ($n$) automatically triggers hundreds of simulation rounds, approximating the true sampling distributions of single-plot and final estimators. Click **Regenerate population** to reset previous runs.
+
+#### Left Panel: Population, Samples, and Final Estimator Variance
+
+The bottom graph in the left panel displays how final estimator standard deviation changes with sample size $n$. The selected sample size is highlighted in red, reflecting the core relationship:
+
+$$\boxed{\boxed{ sd(final~estimator) = \frac{sd(plot~estimator)}{\sqrt{n}}}}$$
+
+#### Right Panel: Convergence of Final Estimator Distribution to Normal
+
+The right panel demonstrates that as $n$ increases, final estimate distributions become narrower: standard deviation scales with $\frac{1}{\sqrt{n}}$ and variance with $\frac{1}{n}$. Furthermore: **As $n$ increases, the sampling distribution converges toward a Normal distribution, directly illustrating the Central Limit Theorem.**
+
+When edge effects are negligible, totals and totals per unit area verify:
+
+$$\boxed{\boxed{ E(final~estimator) = E(plot~estimator)=Parameter~of~interest}}$$
+
+The sampling distribution is thus centered on the true parameter value and approaches normality:
+
+$$\boxed{\boxed{
+final~estimator \sim N\left(Parameter~of~interest, \frac{V(plot~estimator)}{n}\right)
+}}$$
+
+For other parameters (ratios or complex variables), expected values may not equal true parameters, so the normal curve (blue) and empirical simulation curve (red) may show systematic displacement representing bias.
+
+In the right-hand graphs, red curves show empirical distributions from hundreds of simulation rounds, while blue curves represent theoretical normal distributions centered on true parameters. For totals with minor edge effects, red and blue curves merge closely as $n$ grows.

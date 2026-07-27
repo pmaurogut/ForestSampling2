@@ -1,0 +1,394 @@
+# initial values
+
+source("utils.R")
+
+L <- 100
+N <- 5
+K<-1000
+init_pop <- make_population(N,L)
+init_samp_points <- sampling_points(K,L)
+all_trees <- get_all_trees(init_pop,init_samp_points)
+est <- n_estimaciones(all_trees,L,rotate=FALSE)
+par_int <- parametros_interes(init_pop,L,TRUE)
+reps <- 5
+rm(all_trees)
+rm(init_samp_points)
+
+server <- function(input, output, session) {
+  # thematic::thematic_shiny()
+  ##### reactive values #####
+  
+  forest <- reactiveVal(init_pop)
+  est<-reactiveVal(est)
+  pos <- reactiveVal(c(1))
+  
+  conf <- reactive(input$conf_level)
+  conf2 <- reactive(input$conf_level2)
+  
+  estimatesIC <- reactive({
+    input$remuestreaIC
+    get_estimatesIC(est(),input$plot_type1,input$n,K,reps)
+  })
+  
+  error <- reactive({
+    input$remuestreaError
+    get_pilot(est(),input$plot_type1,input$n_pilot,K=K,wide=TRUE)
+  })
+  
+  variation<-reactive({
+    data_long <- pivot_longer(est()[,c("Type","N","G","VCC","h_media","dg","ho")],
+                              cols = c("N","G","VCC","h_media","dg","ho"),
+                              names_to = "parametro",values_to = "estimacion")
+    
+    data_long|> group_by(parametro,Type)|> 
+      summarise(mean=mean(estimacion,na.rm=TRUE),sd=sd(estimacion,na.rm=TRUE)) 
+  })
+  
+  table <- reactive({
+    input$muestra
+    positions <- pos()
+    ests <- est()
+    cols <- colnames(ests)
+    ests<-ests[ests$Type==input$plot_type1,]
+    n <- input$n
+    k <- length(positions)
+    reps <- k/n
+    
+    indexes <- match(positions,ests$Plot)
+    tabla <- ests[indexes,]
+    
+    tabla$Plot <- rep(n:1,each=reps)
+    tabla$Rep <- rep(reps:1,times=n)
+    
+    cols1 <- c("Type","Rep","Parc")
+    cols <- c(cols1, setdiff(colnames(tabla),cols1))
+    tabla[,cols]
+  })
+  par_int <- reactive({
+    parametros_interes(forest(),input$side,TRUE)
+  })
+  
+  base_plot <- reactive({
+    pop_plot(forest(),input$side)
+  })
+  
+  update_pop <- reactive({
+    input$reset_pop
+    pop <- make_population(input$N,input$side)
+    samp_points <- sampling_points(K,input$side)
+    
+    trees <- get_all_trees(pop,samp_points)
+    estimates <- n_estimaciones(trees,input$side,rotate=FALSE)
+    forest(pop)
+    est(estimates)
+    pos(1:input$n)
+    
+  })
+  
+  observeEvent(input$reset_pop,update_pop())
+  observeEvent(input$N,update_pop())
+  observeEvent(input$side,update_pop())
+  observeEvent(input$n,{
+    pos(sample(1:K,input$n,replace = TRUE))
+  })
+  observeEvent(input$muestra,{
+    pos(c(sample(1:K,input$n,replace = TRUE),pos()))
+  })
+  
+  observeEvent(input$samp_dist,{
+    new_val <- isolate(input$n)
+    new_val <- new_val+1
+    new_val <- ifelse(new_val>50,1,new_val)
+    updateSelectInput(inputId = "n",selected = new_val)
+  })
+  observeEvent(input$samp_dist2,{
+    new_val <- isolate(input$n)
+    new_val <- new_val-1
+    new_val <- ifelse(new_val<50,1,new_val)
+    updateSelectInput(inputId = "n",selected = new_val)
+  })
+  
+  ##### Population #####
+  
+  output$poblacion <- renderTable({
+    forest()[,1:7]
+  })
+  
+  output$downloadPop<-downloadHandler(
+      filename = function() {
+        paste('poblacion-', Sys.Date(), '.csv', sep='')
+      },
+      content = function(con) {
+        write.csv2(forest()[,1:7], con,row.names = FALSE, na="")
+      }
+    )
+  
+  output$plot_poblacion<-renderPlot({
+    p <- base_plot()
+    if(input$add_hd){
+      p <- p +
+        geom_label(aes(x=x,y=y-3,label=paste("d: ",dn_cm)),size=4,fill="darkgreen",alpha=0.3)+
+        geom_label(aes(x=x,y=y-8,label=paste("h: ",ht_m)),size=4,fill="blue",alpha=0.3)
+    }
+    p + ggtitle("Población")
+  })
+  
+  output$tabla_interes1 <- renderTable({
+    par_int()
+  })
+  
+  
+  ##### Seleccion #####
+  output$plot_fijo <- renderPlot({
+    trees <- get_trees(forest(),est()[pos()[1],],"r_fijo")
+    plot_selection(base_plot(),trees,
+                   all=input$all_trees,add_hd=input$add_hd)
+  })
+
+  output$plot_variable <- renderPlot({
+    trees <- get_trees(forest(),est()[pos()[1],],"r_variable")
+    plot_selection(base_plot(),trees,all=input$all_trees,add_hd=input$add_hd)
+  })
+
+  output$plot_relascopio <- renderPlot({
+    trees <- get_trees(forest(),est()[pos()[1],],"r_relascopio")
+    plot_selection(base_plot(),trees,all=input$all_trees,add_hd=input$add_hd)
+  })
+
+
+  output$plot_fijo2 <- renderPlot({
+    trees <- get_trees(forest(),est()[pos()[1],],"r_fijo")
+    plot_selection(base_plot(),trees,tree_center = FALSE,add_hd=input$add_hd)
+  })
+
+  output$plot_variable2 <- renderPlot({
+    trees <- get_trees(forest(),est()[pos()[1],],"r_variable")
+    plot_selection(base_plot(),trees,tree_center = FALSE,add_hd=input$add_hd)
+  })
+
+  output$plot_relascopio2 <- renderPlot({
+    trees <- get_trees(forest(),est()[pos()[1],],"r_relascopio")
+    plot_selection(base_plot(),trees,tree_center = FALSE,add_hd=input$add_hd)
+  })
+
+  # ##### One plot #####
+  output$tabla_interes2<-renderTable({
+    par_int()
+  })
+  output$download1Samp<-downloadHandler(
+    
+    filename = function() {
+      paste('muestras-', Sys.Date(), '.csv', sep='')
+    },
+    content = function(con) {
+      samp<-get_trees(forest(),table()[1,],input$plot_type1)
+      samp$Plot <- max(table()$Plot)
+      samp<- samp[,-c(3:6)]
+      write.csv2(samp, con,row.names = FALSE, na="")
+    }
+  )
+  output$muestra <- renderTable({
+    samp<-get_trees(forest(),table()[1,],input$plot_type1)
+    samp$Plot <- max(table()$Plot)
+    samp
+  })
+
+  output$plot_selected1 <- renderPlot({
+    trees <- get_trees(forest(),table()[1,],input$plot_type1)
+    plot_selection(base_plot(),trees,
+                   tree_center = input$centered=="arbol",add_hd=input$add_hd)
+  })
+
+  output$estimacion1<-renderTable({
+    tabla <- table()
+    tabla <- tabla
+    tabla$Plot <- tabla$Rep
+    tabla
+  })
+
+  output$tabla_acc <- renderTable({
+    tabla <- table()
+    tabla <- tabla[tabla$Plot==1,]
+    tabla$Plot <- tabla$Rep
+    tabla
+    })
+
+  output$plot_res1 <- renderPlot({
+    tabla <-table()
+    tabla <- tabla[tabla$Plot==1,]
+    tabla$Plot <- tabla$Rep
+    add_samples_plot(par_int(),tabla,variation())
+  })
+
+
+
+  # ##### n plots #####
+
+  output$tabla_interes3<-renderTable({
+    par_int()
+  })
+  
+  output$plot_selected2<-renderPlot({
+    
+    selected <- table() |> filter(Rep==max(Rep))
+    selected_list <- group_split(selected,Rep,Parc)
+    forest_all <- forest()
+    type <- input$plot_type1
+    # print("hola")
+    # print(selected)
+    selected_trees <- map_dfr(selected_list,function(x,population,type){
+      res<- get_trees(population,x,type)
+      res$Plot <- x$Plot[1]
+      res$Rep <- x$Rep[1]
+      res
+    },population=forest_all,type=type)
+    
+    plot_n_selections(base_plot(),selected_trees,
+                        tree_center = input$centered=="arbol",
+                        all=input$all_trees)
+  })
+  
+  output$downloadnSamp<-downloadHandler(
+    
+    filename = function() {
+      paste('n_muestras-', Sys.Date(), '.csv', sep='')
+    },
+    content = function(con) {
+      selected <- table() |> filter(Rep==max(Rep))
+      print("A")
+      print(selected)
+      selected_list <- group_split(selected,Rep,Parc)
+      forest_all <- forest()
+      type <- input$plot_type1
+      selected_trees <- map_dfr(selected_list,function(x,population,type){
+        res<- get_trees(population,x,type)
+        res$Plot <- x$Plot[1]
+        res$Rep <- x$Rep[1]
+        res
+      },population=forest_all,type=type)
+      write.csv2(selected_trees, con,row.names = FALSE, na="")
+    }
+  )
+  
+  output$n_estimaciones<-renderTable({
+    table() |> filter(Rep==max(Rep))
+  })
+  
+  output$plot_res2<- renderPlot({
+    add_samples_n_plots(par_int(),table(),variation(),input$n)
+  })
+  
+  # ##### samp dist #####
+  
+  output$tabla_interes4<-renderTable({
+    par_int()
+  })
+  
+  output$plot_selected3<-renderPlot({
+    base_plot()
+  })
+  
+
+  output$var_n<- renderPlot({ 
+    n <- input$n
+    type <- input$plot_type1
+    var <- variation()
+    var <- var[var$Type==type ,]
+    
+    standard_dev2(var,n)
+  })
+  
+  output$normal_approx<-renderPlot({
+    estimates <- est()
+    n <- input$n
+    type <- input$plot_type1
+    variation <- variation()
+    normal_approx(estimates,par_int(),n,type,variation,K)
+  })
+  
+  # ##### IC #####
+  
+  output$tabla_interes5<-renderTable({
+    par_int()
+  })
+  
+
+  output$var_n2<- renderPlot({
+    
+    n <- input$n
+    type <- input$plot_type1
+    var <- variation()
+    var <- var[var$Type==type ,]
+
+    standard_dev2(var,n,estimatesIC())
+  })
+  
+  output$intervals<-renderPlot({
+    var <- variation()
+    var <- var[var$Type==input$plot_type1,]
+    confint_plot(estimatesIC(),var,par_int(),conf())
+  })
+  
+  
+  # ##### Samp alloc #####
+  output$tabla_interes6<-renderTable({
+    print("Uno")
+    print(error())
+    par_int()
+  })
+  
+  output$downloadpilotSamp<-downloadHandler(
+    
+    filename = function() {
+      paste('piloto-', Sys.Date(), '.csv', sep='')
+    },
+    content = function(con) {
+      selected <- error()
+      selected_list <- group_split(selected,Rep,Parc)
+      forest_all <- forest()
+      type <- input$plot_type1
+      selected_trees <- map_dfr(selected_list,function(x,population,type){
+        res<- get_trees(population,x,type)
+        res$Plot <- x$Plot[1]
+        res$Rep <- x$Rep[1]
+        res
+      },population=forest_all,type=type)
+      
+      write.csv2(selected_trees, con,row.names = FALSE, na="")
+    }
+  )
+  
+  output$plot_selected4<-renderPlot({
+    
+    selected <- error()
+    print("Dos")
+    print(error())
+    selected_list <- group_split(selected,Rep,Parc)
+    forest_all <- forest()
+    type <- input$plot_type1
+    # print("hola")
+    # print(selected)
+    selected_trees <- map_dfr(selected_list,function(x,population,type){
+      res<- get_trees(population,x,type)
+      res$Plot <- x$Plot[1]
+      res$Rep <- x$Rep[1]
+      res
+    },population=forest_all,type=type)
+    
+    plot_n_selections(base_plot(),selected_trees,
+                      tree_center = input$centered=="arbol",
+                      all=input$all_trees)
+  })
+  
+  
+  output$samp_alloc<-renderPlot({
+    sample_alloc_plot(error(),
+                      conf_level = input$conf_level2,
+                      max_rel_error = input$rel_error/100,
+                      current_n = input$n)
+  })
+  
+  
+}
+
+

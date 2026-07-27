@@ -214,7 +214,7 @@ ui <- page_navbar(
                                                     tableOutput('tabla_interes4'),
                                                     plotOutput("plot_selected3")
                                 ),height=400),
-                                card(card_header("Cambio en la desviación típica al aumentar n"),
+                                card(card_header("Change in standard deviation when increasing n"),
                                      plotOutput("var_n")
                                 )),
                            card(card_header("Approximation to a normal distribution"),
@@ -247,7 +247,7 @@ ui <- page_navbar(
                                ),
                              
                                card(
-                                 card_header("Cambio en la desviación típica aumentar n"),
+                                 card_header("Change in standard deviation when increasing n"),
                                  plotOutput("var_n2")
                                )
                               ),

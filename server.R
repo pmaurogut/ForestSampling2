@@ -8,8 +8,8 @@ K<-1000
 init_pop <- make_population(N,L)
 init_samp_points <- sampling_points(K,L)
 all_trees <- get_all_trees(init_pop,init_samp_points)
-est <- n_estimaciones(all_trees,L,rotate=FALSE)
-par_int <- parametros_interes(init_pop,L,TRUE)
+est <- n_estimates(all_trees,L,rotate=FALSE)
+par_int <- parameters_interes(init_pop,L,TRUE)
 reps <- 5
 rm(all_trees)
 rm(init_samp_points)
@@ -38,10 +38,10 @@ server <- function(input, output, session) {
   variation<-reactive({
     data_long <- pivot_longer(est()[,c("Type","N","G","VCC","h_media","dg","ho")],
                               cols = c("N","G","VCC","h_media","dg","ho"),
-                              names_to = "parametro",values_to = "estimacion")
+                              names_to = "parameter",values_to = "estimate")
     
-    data_long|> group_by(parametro,Type)|> 
-      summarise(mean=mean(estimacion,na.rm=TRUE),sd=sd(estimacion,na.rm=TRUE)) 
+    data_long|> group_by(parameter,Type)|> 
+      summarise(mean=mean(estimate,na.rm=TRUE),sd=sd(estimate,na.rm=TRUE)) 
   })
   
   table <- reactive({
@@ -60,12 +60,12 @@ server <- function(input, output, session) {
     tabla$Plot <- rep(n:1,each=reps)
     tabla$Rep <- rep(reps:1,times=n)
     
-    cols1 <- c("Type","Rep","Parc")
+    cols1 <- c("Type","Rep","Plot")
     cols <- c(cols1, setdiff(colnames(tabla),cols1))
     tabla[,cols]
   })
   par_int <- reactive({
-    parametros_interes(forest(),input$side,TRUE)
+    parameters_interes(forest(),input$side,TRUE)
   })
   
   base_plot <- reactive({
@@ -78,7 +78,7 @@ server <- function(input, output, session) {
     samp_points <- sampling_points(K,input$side)
     
     trees <- get_all_trees(pop,samp_points)
-    estimates <- n_estimaciones(trees,input$side,rotate=FALSE)
+    estimates <- n_estimates(trees,input$side,rotate=FALSE)
     forest(pop)
     est(estimates)
     pos(1:input$n)
@@ -231,7 +231,7 @@ server <- function(input, output, session) {
   output$plot_selected2<-renderPlot({
     
     selected <- table() |> filter(Rep==max(Rep))
-    selected_list <- group_split(selected,Rep,Parc)
+    selected_list <- group_split(selected,Rep,Plot)
     forest_all <- forest()
     type <- input$plot_type1
     # print("hola")
@@ -257,7 +257,7 @@ server <- function(input, output, session) {
       selected <- table() |> filter(Rep==max(Rep))
       print("A")
       print(selected)
-      selected_list <- group_split(selected,Rep,Parc)
+      selected_list <- group_split(selected,Rep,Plot)
       forest_all <- forest()
       type <- input$plot_type1
       selected_trees <- map_dfr(selected_list,function(x,population,type){
@@ -344,7 +344,7 @@ server <- function(input, output, session) {
     },
     content = function(con) {
       selected <- error()
-      selected_list <- group_split(selected,Rep,Parc)
+      selected_list <- group_split(selected,Rep,Plot)
       forest_all <- forest()
       type <- input$plot_type1
       selected_trees <- map_dfr(selected_list,function(x,population,type){
@@ -363,7 +363,7 @@ server <- function(input, output, session) {
     selected <- error()
     print("Dos")
     print(error())
-    selected_list <- group_split(selected,Rep,Parc)
+    selected_list <- group_split(selected,Rep,Plot)
     forest_all <- forest()
     type <- input$plot_type1
     # print("hola")

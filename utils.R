@@ -83,7 +83,7 @@ make_population<-function(N,L){
   return(res)
 }
 
-parametros_interes <- function(poblacion, lado,rotate=TRUE){
+parameters_interes <- function(poblacion, lado,rotate=TRUE){
   A<-lado*lado/10000
   res<-data.frame(
     Area_ha = A,
@@ -168,7 +168,7 @@ get_all_trees <- function(population,points){
 }
 
 
-estimacion <- function(sample,lado,rotate=TRUE){
+estimate <- function(sample,lado,rotate=TRUE){
   
   A <- (lado*lado)/10000
   res <- data.frame(Type=sample$Type[1],Plot=sample$Plot[1],
@@ -216,8 +216,8 @@ estimacion <- function(sample,lado,rotate=TRUE){
   
 }
 
-n_estimaciones<-function(sample,lado,rotate=FALSE){
-  map_dfr(group_split(sample,Plot,Type),estimacion,lado=lado,rotate=rotate)
+n_estimates<-function(sample,lado,rotate=FALSE){
+  map_dfr(group_split(sample,Plot,Type),estimate,lado=lado,rotate=rotate)
 }
 
 pop_plot <- function(forest_data,lado){
@@ -309,7 +309,7 @@ prepare_long1 <- function(data){
   data_long <- pivot_longer(data[,c("Plot","N","G","VCC","h_media","dg","ho")],
                             cols = c("N","G","VCC","h_media","dg","ho"),
                             names_to = "parameter",values_to = "estimate")
-  means <- data_long|> group_by(parametro)|> summarise_all(mean,na.rm=TRUE)
+  means <- data_long|> group_by(parameter)|> summarise_all(mean,na.rm=TRUE)
   
   means$type_est <- "n-plots"
   data_long$type_est <- "1-plot"
@@ -317,8 +317,8 @@ prepare_long1 <- function(data){
   all <- rbind(means,data_long)
   all$type_est <- factor(all$type_est,levels=c("1-plot","n-plots"),ordered=TRUE)
   
-  variation <- data_long|> group_by(type_est,parametro)|> 
-    summarise(mean=mean(estimacion,na.rm=TRUE),sd=sd(estimacion,na.rm=TRUE),.groups = "keep") |>
+  variation <- data_long|> group_by(type_est,parameter)|> 
+    summarise(mean=mean(estimate,na.rm=TRUE),sd=sd(estimate,na.rm=TRUE),.groups = "keep") |>
     transmute(xmin = mean - 2*sd,xmax=mean + 2*sd) |> ungroup()
   
   variation2 <- variation
@@ -356,11 +356,11 @@ add_samples_plot<-function(p_int,first,variation){
   print(to_plot)
   p <- ggplot(variation) +
     facet_wrap(.~parameter,scales="free")+
-    geom_point(data=to_plot$all,aes(x=estimacion,y=y,col=type_est,fill=type_est),shape=20,size=4)
+    geom_point(data=to_plot$all,aes(x=estimate,y=y,col=type_est,fill=type_est),shape=20,size=4)
   
   if(max(to_plot$all$Plot)>1){
     densities <- to_plot$all[to_plot$all$type_est=="1-plot",]
-    densities <- group_split(densities,parametro)
+    densities <- group_split(densities,parameter)
     print(densities)
     
     densities <- map_dfr(densities,function(x){
@@ -371,7 +371,7 @@ add_samples_plot<-function(p_int,first,variation){
       }else{
         dens <- density(x$estimate)
         dens <- data.frame(x=c(dens$x,dens$x[1]),y=c(dens$y,dens$y[1]),
-                           parametro=x$parameter[1])
+                           parameter=x$parameter[1])
         dens$y <- 0.5+0.4*dens$y/max(dens$y)
         return(dens)
       }
@@ -405,18 +405,18 @@ prepare_long_n <- function(data){
                             cols = c("N","G","VCC","h_media","dg","ho"),
                             names_to = "parameter",values_to = "estimate")
   
-  means <- data_long|> group_by(Rep,parametro)|> summarise_all(mean,na.rm=TRUE)
+  means <- data_long|> group_by(Rep,parameter)|> summarise_all(mean,na.rm=TRUE)
   means$y <- 0.5
   means$type_est <- "n-plots"
   data_long$type_est <- "1-plot"
   data_long$y <- 0.75
   
-  variation <- data_long|> group_by(type_est,parametro)|> 
-    summarise(mean=mean(estimacion,na.rm=TRUE),sd=sd(estimacion,na.rm=TRUE),.groups = "keep") |>
+  variation <- data_long|> group_by(type_est,parameter)|> 
+    summarise(mean=mean(estimate,na.rm=TRUE),sd=sd(estimate,na.rm=TRUE),.groups = "keep") |>
     transmute(xmin = mean - 2*sd,xmax=mean + 2*sd) |> ungroup()
   variation$y <- 1
-  variation2 <- means|> group_by(type_est,parametro)|> 
-    summarise(mean=mean(estimacion),sd=sd(estimacion),.groups = "keep") |>
+  variation2 <- means|> group_by(type_est,parameter)|> 
+    summarise(mean=mean(estimate),sd=sd(estimate),.groups = "keep") |>
     transmute(xmin = mean - 2*sd,xmax=mean + 2*sd) |> ungroup()
   variation2$y<-0.25
   
@@ -461,8 +461,8 @@ add_samples_n_plots<-function(p_int,all,variation,n){
   
   ggplot(variation) +
     facet_grid(type_est~parameter,scales="free_x")+
-    geom_point(data=to_plot$all,aes(x=estimacion,y=0.25,col=type_est,fill=type_est),shape=20,size=4)+
-    geom_density(data=to_plot$all,aes(x=estimacion,fill=type_est,col=type_est),alpha=0.4) +
+    geom_point(data=to_plot$all,aes(x=estimate,y=0.25,col=type_est,fill=type_est),shape=20,size=4)+
+    geom_density(data=to_plot$all,aes(x=estimate,fill=type_est,col=type_est),alpha=0.4) +
     geom_linerange(data=variation,aes(y=0.75,xmin=x_min,xmax=x_max,col=type_est))+
     geom_vline(data=p_int,aes(xintercept=Value),col="black")+
     scale_fill_manual(values=c("1-plot"="red","n-plots"="blue"))+
@@ -503,7 +503,7 @@ normal_approx <- function(estimates,p_int,n,type,variation,K){
   estimates <-  pivot_longer(estimates[,c("Rep","Plot","N","G","VCC","h_media","dg","ho")],
                              cols = c("N","G","VCC","h_media","dg","ho"),
                              names_to = "parameter",values_to = "estimate")
-  estimates <- group_by(estimates,parametro,Rep)|>summarize(estimacion=mean(estimacion,na.rm=TRUE))|>ungroup()
+  estimates <- group_by(estimates,parameter,Rep)|>summarize(estimate=mean(estimate,na.rm=TRUE))|>ungroup()
 
  
   estimates<-merge(estimates,variation,by="parameter")
@@ -513,7 +513,7 @@ normal_approx <- function(estimates,p_int,n,type,variation,K){
   print("hola")
   print(estimates)
   norm <- estimates %>% 
-    group_by(parametro) %>% 
+    group_by(parameter) %>% 
     reframe(x=seq(min(target,na.rm=TRUE)-3*mean(sd),max(target,na.rm=TRUE)+3*mean(sd),length.out=200),
             y = dnorm(x, mean = mean(target,na.rm=TRUE), sd = mean(sd_n,na.rm=TRUE) )) 
   print(norm)
@@ -521,10 +521,10 @@ normal_approx <- function(estimates,p_int,n,type,variation,K){
   col <- ifelse(n==1,"red","blue")
   title <- paste("Approximation to a normal distribution when increasing n (100 repeats), n=",n,"plots")
   ggplot(data=norm) +
-    facet_wrap(.~ parametro,scales="free") +
+    facet_wrap(.~ parameter,scales="free") +
     geom_line(data=norm,aes(x=x,y = y),col="black") + 
-    geom_point(data=estimates,aes(x=estimacion,y=0),shape=20,col=col)+
-    geom_density(data=estimates,aes(x=estimacion),fill=col,colour = col,alpha=0.2)+
+    geom_point(data=estimates,aes(x=estimate,y=0),shape=20,col=col)+
+    geom_density(data=estimates,aes(x=estimate),fill=col,colour = col,alpha=0.2)+
     geom_vline(data=p_int,aes(xintercept=target),colour = "black")+
     geom_point(data=limits,aes(x=value,y=0),colour = col,alpha=0)+
     ggtitle(title)+
@@ -567,7 +567,7 @@ standard_dev2<- function(var,n,samples=NULL){
     geom_point(aes(color=color))+geom_path() + 
     geom_point(data=red,color=col,pch=20,size=3)
   if(!is.null(samples)){
-    samples <- samples |> group_by(Rep,parametro)|> summarise(sd_n=sd(estimacion)/sqrt(n())) |> ungroup()
+    samples <- samples |> group_by(Rep,parameter)|> summarise(sd_n=sd(estimate)/sqrt(n())) |> ungroup()
     samples$n <- n
     p <- p + geom_point(data=samples,color="blue",alpha=0.5,pch=20,size=3)
   }
@@ -629,8 +629,8 @@ confint_plot<-function(estimates, var, par_int,conf){
   
   # print(estimates)
   estimates <- estimates[!is.na(estimates$estimate),]
-  means <- estimates |> group_by(Rep,parametro) |> summarize(mean=mean(estimacion,na.rm=TRUE),
-                                                   sd=sd(estimacion,na.rm=TRUE)/sqrt(n()),n=n()) |> ungroup()
+  means <- estimates |> group_by(Rep,parameter) |> summarize(mean=mean(estimate,na.rm=TRUE),
+                                                   sd=sd(estimate,na.rm=TRUE)/sqrt(n()),n=n()) |> ungroup()
   conf <- -qnorm((1-conf)/2)
   means$x_min <- means$mean - conf*means$sd
   means$x_max <- means$mean + conf*means$sd
@@ -643,9 +643,9 @@ confint_plot<-function(estimates, var, par_int,conf){
   labels <- merge(par_int,means,by="parameter")
   labels$pos1 <- labels$mean.x - 2*labels$sd.x
   labels$pos2 <- labels$mean.x + 2*labels$sd.x
-    # par_int <- filter(par_int, parametro%in%var$parameter)
+    # par_int <- filter(par_int, parameter%in%var$parameter)
 
-  line_range <- merge(var,expand.grid(parametro=unique(var$parameter),Rep=1:reps),by="parameter")
+  line_range <- merge(var,expand.grid(parameter=unique(var$parameter),Rep=1:reps),by="parameter")
   
   # print(par_int)
   # print(labels)
@@ -655,7 +655,7 @@ confint_plot<-function(estimates, var, par_int,conf){
     geom_point(aes(x=x_max,y=1),alpha=0)+
     geom_linerange(data=line_range,aes(xmin=x_min,xmax=x_max,y=Rep-0.6),col="grey30",linetype=2)+
     
-    geom_point(data=estimates,aes(x=estimacion,y=Rep),shape=20,alpha=0.5,col="red")+
+    geom_point(data=estimates,aes(x=estimate,y=Rep),shape=20,alpha=0.5,col="red")+
     
     geom_point(data=means,aes(x=mean,y=Rep-0.4),shape=20,alpha=0.5,col="blue",size=3)+
     geom_linerange(data=means,aes(y=Rep-0.4,xmin=x_min,xmax=x_max),col="blue")+
@@ -681,7 +681,7 @@ prepare_error_pol <- function(means_sd,conf_level=0.95){
   
   n <- max(means_sd$n)
   
-  variation_n <- expand.grid(parametro=unique(means_sd$parameter),n_samp=n:50,side=1:2)
+  variation_n <- expand.grid(parameter=unique(means_sd$parameter),n_samp=n:50,side=1:2)
   variation_n <- merge(means_sd,variation_n,by="parameter")
 
   variation_n$q <- qt((1-conf_level)/2,n-1)
@@ -690,11 +690,11 @@ prepare_error_pol <- function(means_sd,conf_level=0.95){
                               -variation_n$q*variation_n$sd)
   variation_n$bound <- variation_n$mean + variation_n$bound/sqrt(variation_n$n_samp)
   
-  v1 <- filter(variation_n,side==1) |> group_by(parametro) |> 
+  v1 <- filter(variation_n,side==1) |> group_by(parameter) |> 
     arrange(desc(n_samp)) |> mutate(order=n:50)|> ungroup()
   
   
-  v2 <- filter(variation_n,side==2)|> group_by(parametro) |> 
+  v2 <- filter(variation_n,side==2)|> group_by(parameter) |> 
     arrange(n_samp) |> mutate(order=(51:(100-(n-1))))|> ungroup()
   
   v3 <- v1[v1$order==1,]
@@ -710,9 +710,9 @@ sample_alloc_plot <- function(piloto,conf_level=0.95,max_rel_error=0.1,current_n
                cols = c("N","G","VCC","h_media","dg","ho"),
                names_to = "parameter",values_to = "estimate")
   
-  means_sd <- group_by(piloto,parametro)|> 
-    summarize(mean=mean(estimacion,na.rm=TRUE),
-              sd=sd(estimacion,na.rm=TRUE),n=n())|>
+  means_sd <- group_by(piloto,parameter)|> 
+    summarize(mean=mean(estimate,na.rm=TRUE),
+              sd=sd(estimate,na.rm=TRUE),n=n())|>
     ungroup()
   
   max_y <- max(means_sd$n)
@@ -750,7 +750,7 @@ sample_alloc_plot <- function(piloto,conf_level=0.95,max_rel_error=0.1,current_n
     
     geom_polygon(aes(x=bound,y=n_samp),col="blue",fill="purple",alpha=0.1)+
     
-    geom_point(data=piloto,aes(x=estimacion),y=max_y+0.2,col="red",shape=20,alpha=0.8)+
+    geom_point(data=piloto,aes(x=estimate),y=max_y+0.2,col="red",shape=20,alpha=0.8)+
     
     geom_point(data=means_sd,aes(x=mean),y=max_y,col="blue",shape=20,alpha=0.5,size=3)+
     geom_linerange(data=means_sd,aes(xmin=(mean-error),xmax=(mean+error)),y=max_y,col="blue",alpha=0.5)

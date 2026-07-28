@@ -158,7 +158,7 @@ If we could infinitely repeat the sampling and estimation process, the mean of t
 
 In theory, two key estimator properties are bias and variance. Bias tells us how close, on average, we come to the true parameter value. An estimator with low bias is said to have high accuracy. Precision, measured via variance or standard deviation, informs us about the variability of values obtained when using an estimator. A precise estimator has low variance, whereas an imprecise estimator fluctuates widely and has high variance.
 
-![Estimator Precision and Bias](Precision_sesgo.png)
+![Estimator Precision and Bias](VarianceBias.png)
 
 When edge effects are small, the plot estimator for totals or totals per unit area is unbiased (its expected value matches the parameter to be estimated). Thus, for totals and totals per unit area (with negligible edge effects), we are guaranteed to be in the bottom row of the diagram above—whether on the left (low precision = high variance) or right (high precision = low variance), but definitely in the bottom row.
 
@@ -284,7 +284,7 @@ $$Expected~Value=\frac{1}{R}\begin{pmatrix}
     0 +& 0 +& 0 +& \frac{y_4}{\pi_4} +& 0\\
      & & + & & \\
     \vdots \\
-    \frac{y_1}{\pi_1} +&0 +& \frac{y_3}{\pi_3} +& 0 +& 0
+    0 +&0 +& \frac{y_3}{\pi_3} +& 0 +& 0
 \end{pmatrix}$$
 
 Summing by columns and factoring out $\frac{y_i}{\pi_i}$:

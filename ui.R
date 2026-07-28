@@ -265,7 +265,7 @@ ui <- page_navbar(
             
   ),
   #### Sample alloc ####
-  nav_panel("7. Tamaño muestra",
+  nav_panel("7. Sample size",
             fluidRow({
               layout_columns(col_widths=c(5,7),height = 900,
                           card(card_header("Parameters of interest and pilot samples"),

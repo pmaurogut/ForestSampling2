@@ -668,7 +668,7 @@ confint_plot<-function(estimates, var, par_int,conf){
       
   }
     
-    p <- p+ guides(fill=NULL,color=NULL)+theme(legend.position = "bottom") + xlab("Estimación")
+    p <- p+ guides(fill=NULL,color=NULL)+theme(legend.position = "bottom") + xlab("Estimate")
             theme(axis.text.y=element_blank(),axis.ticks.y=element_blank(),
                   element_text(family="mono"))
     p

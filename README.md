@@ -19,7 +19,7 @@ Figure 1. Sections of the Forest Sampling application.
 
 Available tabs:
 
-1.  [Population](help/1_PPopulation.Rmd)
+1.  [Population](help/1_Population.Rmd)
 
 2.  [Sample selection](help/2_Selection.Rmd)
 

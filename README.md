@@ -20,9 +20,15 @@ Figure 1. Sections of the Forest Sampling application.
 Available tabs:
 
 1.  [Population](help/1_PPopulation.Rmd)
+
 2.  [Sample selection](help/2_Selection.Rmd)
+
 3.  [Estimation with one plot](help/1_OnePlot.Rmd)
+
 4.  [Estimation with n plots (point estimation)](help/4_nPlots.Rmd)
+
 5.  [Estimation with n plots (sampling distribution)](help/5_Samp_dist.Rmd)
+
 6.  [Estimation with n plots (confidence intervals and sampling error)](help/6_Interval_error.Rmd)
+
 7.  [Estimation with n plots (sample size determination)](help/7_Samp_aloc.Rmd)

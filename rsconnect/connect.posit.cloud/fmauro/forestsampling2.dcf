@@ -1,0 +1,12 @@
+name: forestsampling2
+title: ForestSampling2
+username: fmauro
+account: fmauro
+server: connect.posit.cloud
+hostUrl: https://api.connect.posit.cloud/v1
+appId: 019fae20-055a-d9a4-86bd-4bf398676133
+bundleId:
+url: https://connect.posit.cloud/fmauro/content/019fae20-055a-d9a4-86bd-4bf398676133
+version: 1
+asMultiple: FALSE
+asStatic: FALSE

@@ -12,8 +12,8 @@ library(markdown)
 library(spatstat)
 
 plot_type<- radioButtons("plot_type1" , "Plot type",
-                         c("R fixed 15 m" = "r_fijo",
-                           "R. nested d<15 10m, d>=15 10m" = "r_variable",
+                         c("Fixed radius 15 m" = "r_fijo",
+                           "Nested radius d<15 10m, d>=15 10m" = "r_variable",
                            "Relascope BAF=1" = "r_relascopio"),selected = "r_fijo")
 
 centrado_arbol <- radioButtons("centered" , "Center at",

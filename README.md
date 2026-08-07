@@ -1,6 +1,6 @@
 **2.1 Forest Sampling Application**
 
-This application has been developed for the Forestry Silviculture and Inventory course of the Bachelor's Degree in Forestry Engineering: Forest Industries, taught at the EiFAB in Soria, University of Valladolid. The application covers the sampling block, with the exception of stratified sampling.
+This application has been developed for the Forestry Silviculture and Inventory course of the Bachelor's Degree in Forestry Engineering: Forest Industries, taught at the EiFAB in Soria, University of Valladolid. The application covers the sampling block, with the exception of stratified sampling. ![App](https://019fb2b7-81e1-8c55-b62c-6932879b1971.share.connect.posit.cloud))
 
 The application is organized into seven tabs or screens, each dedicated to a specific aspect of the sampling block, which should be viewed sequentially. Each tab includes a section with theoretical explanations.
 
